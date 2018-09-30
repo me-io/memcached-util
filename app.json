@@ -1,0 +1,39 @@
+{
+  "name": "Currency Converter Server",
+  "description": "Golang Currency Converter Server",
+  "website": "https://github.com/me-io/memcached-util",
+  "repository": "https://github.com/me-io/memcached-util",
+  "logo": "https://raw.githubusercontent.com/me-io/memcached-util/master/icon.png",
+  "keywords": [
+    "golang",
+    "currency",
+    "currencylayer",
+    "yahoo currency",
+    "google currency",
+    "fixer",
+    "1forge"
+  ],
+  "success_url": "/",
+  "stack": "heroku-16",
+  "image": "heroku/go:latest",
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "free"
+    }
+  },
+  "addons": [
+    "heroku-redis:hobby-dev"
+  ],
+  "env": {
+    "CACHE_ENV": {
+      "description": "Cache driver ( memory or redis )",
+      "value": "redis"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/go"
+    }
+  ]
+}

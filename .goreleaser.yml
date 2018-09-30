@@ -1,0 +1,27 @@
+project_name: memcached-util
+before:
+  hooks:
+#  - make clean
+  - go generate ./...
+builds:
+- main: ./cmd/util/.
+  binary: memcached-util
+  ldflags:
+  - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+  env:
+  - CGO_ENABLED=0
+
+archive:
+  replacements:
+    windows: Windows
+    amd64: 64-bit
+    386: 32-bit
+    darwin: macOS
+    linux: Linux
+  format: tar.gz
+  format_overrides:
+  - goos: windows
+    format: zip
+  files:
+  - LICENSE.md
+  - README.md
