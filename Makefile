@@ -25,7 +25,7 @@ VERSION := $(shell git describe --tags --always --dirty)
 SRC_DIRS := cmd pkg # directories which hold app source (not vendored)
 
 ##
-MEMCACHED_URL ?= memcached://localhost:11211
+MEMCACHED_URL ?= localhost:11211
 
 # $(OS)-$(ARCH) pairs to build binaries and containers for
 BUILD_PLATFORMS := linux-amd64 linux-arm linux-arm64 linux-ppc64le freebsd-amd64 freebsd-386
@@ -156,9 +156,9 @@ test-docker: build-dirs
 	    -ti                                                                       \
 	    --rm 	     														      \
 	    --name memcached-util-memcached 										  \
-	    -d memcached:alpine memcached:1.5.10-alpine
+	    -d memcached:1.5.10-alpine -m 64
 	@docker run                                                                   \
-	    -e "MEMCACHED_URL=memcached://memcached:11211"							  \
+	    -e "MEMCACHED_URL=memcached:11211"							  		      \
 	    --link memcached-util-memcached:memcached                                 \
 	    -ti                                                                       \
 	    --rm                                                                      \

@@ -2,6 +2,14 @@
 
 
 [[projects]]
+  branch = "master"
+  digest = "1:f98385a9b77f6cacae716a59c04e6ac374d101466d4369c4e8cc706a39c4bb2e"
+  name = "github.com/bradfitz/gomemcache"
+  packages = ["memcache"]
+  pruneopts = "UT"
+  revision = "bc664df9673713a0ccf26e3b55a673ec7301088b"
+
+[[projects]]
   digest = "1:5b3b29ce0e569f62935d9541dff2e16cc09df981ebde48e82259076a73a3d0c7"
   name = "github.com/op/go-logging"
   packages = ["."]
@@ -12,6 +20,9 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  input-imports = ["github.com/op/go-logging"]
+  input-imports = [
+    "github.com/bradfitz/gomemcache/memcache",
+    "github.com/op/go-logging",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1

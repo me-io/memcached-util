@@ -22,8 +22,8 @@ RUN apk update \
     && update-ca-certificates
 
 ADD bin/ARG_OS-ARG_ARCH/ARG_SRC_BIN /ARG_BIN
-
-EXPOSE 5000
+ENV BINSRC_ENV="/ARG_BIN"
+COPY scripts/docker-entrypoint.sh /usr/local/bin/
 
 USER nobody:nobody
-ENTRYPOINT ["/ARG_BIN"]
+ENTRYPOINT ["docker-entrypoint.sh"]

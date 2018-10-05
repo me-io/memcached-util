@@ -28,7 +28,6 @@
 codename = "memcached-util"
 
 required = [
-    "github.com/bradfitz/gomemcache/memcache",
     "github.com/op/go-logging",
     "github.com/stretchr/testify"
 ]
