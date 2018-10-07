@@ -10,10 +10,9 @@ import (
 	"strings"
 )
 
-/*
-	The CommandExecutor interface defines an entity that is able to execute memcached
-	commands against a memcached server.
- */
+// The CommandExecutor interface defines an
+// entity that is able to execute memcached
+// commands against a memcached server.
 type CommandExecutor interface {
 	execute(command string, delimiters []string) []string
 	Close()
@@ -28,6 +27,7 @@ func MemClient(server string) (*memClient, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &memClient{
 		server: server,
 		executor: &MemcachedCommandExecutor{
@@ -54,8 +54,8 @@ func (executor *MemcachedCommandExecutor) execute(command string, responseDelimi
 OUTER:
 	for scanner.Scan() {
 		line := scanner.Text()
-		for _, delimeter := range responseDelimiters {
-			if line == delimeter {
+		for _, delimiter := range responseDelimiters {
+			if line == delimiter {
 				break OUTER
 			}
 		}
@@ -69,15 +69,14 @@ OUTER:
 	return result
 }
 
+// Closes the memcached connection
 func (executor *MemcachedCommandExecutor) Close() {
 	executor.connection.Close()
 }
 
-/*
-	List all cache keys on the memcached server.
- */
+// List all cache keys on the memcached server.
 func (client *memClient) ListKeys() []string {
-	keys := []string{}
+	var keys []string
 	result := client.executor.execute("stats items\r\n", []string{"END"})
 
 	// identify all slabs and their number of items by parsing the 'stats items' command
@@ -106,10 +105,9 @@ func (client *memClient) ListKeys() []string {
 	return keys
 }
 
-/*
-	Retrieves a given cache key from the memcached server.
-	Returns a string array with the value and a boolean indicating whether a value was found or not.
- */
+// Retrieves a given cache key from the memcached server.
+// Returns a string array with the value and a boolean indicating
+// whether a value was found or not.
 func (client *memClient) Get(key string) ([]string, bool) {
 	command := fmt.Sprintf("get %s\r\n", key)
 	result := client.executor.execute(command, []string{"END"})
@@ -117,23 +115,21 @@ func (client *memClient) Get(key string) ([]string, bool) {
 		// ditch the first "VALUE <key> <expiration> <length>" line
 		return result[1:], true
 	}
+
 	return []string{}, false
 }
 
-/*
-   Get the server version.
- */
+// Get the server version.
 func (client *memClient) Version() string {
 	result := client.executor.execute("version \r\n", []string{})
 	if len(result) == 1 {
 		return result[0]
 	}
+
 	return "UNKNOWN"
 }
 
-/*
-	Retrieve all server statistics.
- */
+// Retrieves all server statistics.
 func (client *memClient) Stats() []Stat {
 	result := client.executor.execute("stats\r\n", []string{"END"})
 
@@ -146,9 +142,7 @@ func (client *memClient) Stats() []Stat {
 	return stats
 }
 
-/*
-	Retrieve a specific server statistic.
- */
+// Retrieves a specific server statistic.
 func (client *memClient) Stat(statName string) (Stat, bool) {
 	stats := client.Stats()
 	for _, stat := range stats {
@@ -156,12 +150,12 @@ func (client *memClient) Stat(statName string) (Stat, bool) {
 			return stat, true
 		}
 	}
+
 	return Stat{}, false
 }
 
-/*
-	Creates a memClient and deals with any errors that might occur (e.g. unable to connect to server).
- */
+// Creates a memClient and deals with any errors
+// that might occur (e.g. unable to connect to server).
 func createClient(host, port *string) (*memClient) {
 	server := *host + ":" + *port
 	client, err := MemClient(server)
@@ -169,6 +163,7 @@ func createClient(host, port *string) (*memClient) {
 		fmt.Fprintln(os.Stderr, "Unable to connect to", server)
 		os.Exit(1)
 	}
+
 	return client
 }
 
