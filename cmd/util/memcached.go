@@ -26,6 +26,12 @@ type KeyValue struct {
 	Length int    `json:"length,omitempty"`
 }
 
+type Key struct {
+	Original string `json:"original,omitempty"`
+	Name     string `json:"name,omitempty"`
+	Expiry   string `json:"expiry,omitempty"`
+}
+
 type MemcachedCommandExecutor struct {
 	connection net.Conn
 }
@@ -83,8 +89,8 @@ func (executor *MemcachedCommandExecutor) Close() {
 }
 
 // List all cache keys on the memcached server.
-func (client *memClient) ListKeys() []string {
-	var keys []string
+func (client *memClient) ListKeys() []Key {
+	var keys []Key
 	result := client.executor.execute("stats items\r\n", []string{"END"})
 
 	// identify all slabs and their number of items by parsing the 'stats items' command
@@ -100,13 +106,18 @@ func (client *memClient) ListKeys() []string {
 	}
 
 	// For each slab, dump all items and add each key to the `keys` slice
-	r, _ = regexp.Compile("ITEM (.*?) .*")
+	r, _ = regexp.Compile(`ITEM\s*?(.*?)\s*?\[\d+\s*?b;\s*?(\d+)\s*?s\]`)
 	for slabId, slabCount := range slabCounts {
 		command := fmt.Sprintf("stats cachedump %v %v\n", slabId, slabCount)
 		commandResult := client.executor.execute(command, []string{"END"})
 		for _, item := range commandResult {
 			matches := r.FindStringSubmatch(item)
-			keys = append(keys, matches[1])
+
+			keys = append(keys, Key{
+				matches[0],
+				matches[1],
+				matches[2],
+			})
 		}
 	}
 
@@ -142,7 +153,7 @@ func (client *memClient) Get(keyName string) (*KeyValue, bool) {
 		keyName,
 		keyValue,
 		flag,
-		0, 		// Expiry is not returned in response, we will populate it in a different manner
+		0, // Expiry is not returned in response, we will populate it in a different manner
 		length,
 	}, true
 }

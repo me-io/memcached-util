@@ -47,10 +47,10 @@ func main() {
 	// connect to memcached server
 	client := createClient(host, port)
 
-	client.Set("username", "john doe", 20)
-	client.Set("age", "3438", 20)
-	client.Set("profession", "debugging", 20)
-	client.Set("location", "neverland", 20)
+	client.Set("username", "john doe", 60)
+	client.Set("age", "3438", 60)
+	client.Set("profession", "debugging", 60)
+	client.Set("location", "neverland", 60)
 
 	time.Sleep(1000 * time.Millisecond)
 
@@ -65,7 +65,7 @@ func main() {
 	}
 
 	for _, key := range keys {
-		keyValue, _ := client.Get(key)
+		keyValue, _ := client.Get(key.Name)
 		cachedData = append(cachedData, *keyValue)
 	}
 
