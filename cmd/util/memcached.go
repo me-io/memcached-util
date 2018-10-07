@@ -19,10 +19,11 @@ type CommandExecutor interface {
 }
 
 type KeyValue struct {
-	name   string
-	value  string
-	expiry int
-	length int
+	Name   string `json:"name,omitempty"`
+	Value  string `json:"value,omitempty"`
+	Flag   int    `json:"flag,omitempty"`
+	Expiry int    `json:"expiry,omitempty"`
+	Length int    `json:"length,omitempty"`
 }
 
 type MemcachedCommandExecutor struct {
@@ -134,13 +135,14 @@ func (client *memClient) Get(keyName string) (*KeyValue, bool) {
 
 	parts := strings.Split(result[0], " ")
 	// ditch the first "VALUE <key> <expiration> <length>" line
-	expiryDate, _ := strconv.Atoi(parts[2])
+	flag, _ := strconv.Atoi(parts[2])
 	length, _ := strconv.Atoi(parts[3])
 
 	return &KeyValue{
 		keyName,
 		keyValue,
-		expiryDate,
+		flag,
+		0, 		// Expiry is not returned in response, we will populate it in a different manner
 		length,
 	}, true
 }

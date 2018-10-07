@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/op/go-logging"
+	"io/ioutil"
 	"os"
 	"time"
 )
@@ -45,16 +47,29 @@ func main() {
 	// connect to memcached server
 	client := createClient(host, port)
 
-	client.Set("username", "john doe", 900)
-	client.Set("age", "3438", 900)
-	client.Set("profession", "debugging", 900)
-	client.Set("location", "neverland", 900)
+	client.Set("username", "john doe", 20)
+	client.Set("age", "3438", 20)
+	client.Set("profession", "debugging", 20)
+	client.Set("location", "neverland", 20)
 
 	time.Sleep(1000 * time.Millisecond)
 
+	var cachedData []KeyValue
 	keys := client.ListKeys()
+	foundCount := len(keys)
+
+	Logger.Infof("%d values found in the storage", foundCount)
+	if foundCount == 0 {
+		Logger.Infof("No records to publish")
+		os.Exit(0)
+	}
+
 	for _, key := range keys {
 		keyValue, _ := client.Get(key)
-		fmt.Println(keyValue)
+		cachedData = append(cachedData, *keyValue)
 	}
+
+	cachedJson, _ := json.Marshal(cachedData)
+	ioutil.WriteFile("output.json", cachedJson, 0644)
+	fmt.Printf("%+v", cachedData)
 }
