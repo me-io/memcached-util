@@ -18,6 +18,13 @@ type CommandExecutor interface {
 	Close()
 }
 
+type KeyValue struct {
+	name   string
+	value  string
+	expiry int
+	length int
+}
+
 type MemcachedCommandExecutor struct {
 	connection net.Conn
 }
@@ -105,18 +112,37 @@ func (client *memClient) ListKeys() []string {
 	return keys
 }
 
+// Sets a given cache key on the memcached server to a given value.
+func (client *memClient) Set(key string, value string, expiration int) {
+	flags := "0"
+	command := fmt.Sprintf("set %s %s %d %d\r\n%s\r\n", key, flags, expiration, len(value), value)
+	client.executor.execute(command, []string{"STORED"})
+}
+
 // Retrieves a given cache key from the memcached server.
 // Returns a string array with the value and a boolean indicating
 // whether a value was found or not.
-func (client *memClient) Get(key string) ([]string, bool) {
-	command := fmt.Sprintf("get %s\r\n", key)
+func (client *memClient) Get(keyName string) (*KeyValue, bool) {
+	command := fmt.Sprintf("get %s\r\n", keyName)
 	result := client.executor.execute(command, []string{"END"})
-	if len(result) >= 2 {
-		// ditch the first "VALUE <key> <expiration> <length>" line
-		return result[1:], true
+
+	if len(result) < 2 {
+		return &KeyValue{}, false
 	}
 
-	return []string{}, false
+	keyValue := result[1]
+
+	parts := strings.Split(result[0], " ")
+	// ditch the first "VALUE <key> <expiration> <length>" line
+	expiryDate, _ := strconv.Atoi(parts[2])
+	length, _ := strconv.Atoi(parts[3])
+
+	return &KeyValue{
+		keyName,
+		keyValue,
+		expiryDate,
+		length,
+	}, true
 }
 
 // Get the server version.

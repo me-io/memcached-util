@@ -2,13 +2,15 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/op/go-logging"
 	"os"
+	"time"
 )
 
 var (
 	host *string
-	port *int
+	port *string
 
 	format = logging.MustStringFormatter(
 		`%{color}%{time:2006-01-02T15:04:05.999999} %{shortfunc} ▶ %{level:.8s} %{id:03x}%{color:reset} %{message}`,
@@ -30,7 +32,7 @@ func init() {
 	logging.SetBackend(backendLevelFormatted)
 
 	host = flag.String("H", `0.0.0.0`, "Memcached hostname")
-	port = flag.Int("P", 11211, "Memcached port")
+	port = flag.String("P", "11211", "Memcached port")
 
 	flag.Parse()
 }
@@ -39,4 +41,20 @@ func init() {
 func main() {
 	Logger.Infof("host %s", *host)
 	Logger.Infof("port %d", *port)
+
+	// connect to memcached server
+	client := createClient(host, port)
+
+	client.Set("username", "john doe", 900)
+	client.Set("age", "3438", 900)
+	client.Set("profession", "debugging", 900)
+	client.Set("location", "neverland", 900)
+
+	time.Sleep(1000 * time.Millisecond)
+
+	keys := client.ListKeys()
+	for _, key := range keys {
+		keyValue, _ := client.Get(key)
+		fmt.Println(keyValue)
+	}
 }
