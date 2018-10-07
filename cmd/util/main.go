@@ -11,9 +11,11 @@ import (
 )
 
 var (
-	host *string
-	port *string
-	path *string
+	host    *string
+	port    *string
+	path    *string
+	export  *bool
+	restore *bool
 
 	format = logging.MustStringFormatter(
 		`%{color}%{time:2006-01-02T15:04:05.999999} %{shortfunc} ▶ %{level:.8s} %{id:03x}%{color:reset} %{message}`,
@@ -37,6 +39,9 @@ func init() {
 	host = flag.String("host", `0.0.0.0`, "Memcached hostname")
 	port = flag.String("port", "11211", "Memcached port")
 	path = flag.String("name", "output.json", "Path to store the output file at")
+	path = flag.String("action", "export", "Path to store the output file at")
+	export = flag.Bool("export", false, "Whether to export the cache")
+	restore = flag.Bool("restore", false, "Whether to restore the cache")
 
 	// If the given filename does not have the suffix, add to it
 	*path = strings.Trim(*path, "/")
@@ -47,12 +52,7 @@ func init() {
 	flag.Parse()
 }
 
-// main ... main function start the server
-func main() {
-	Logger.Infof("host %s", *host)
-	Logger.Infof("port %s", *port)
-
-	// connect to memcached server
+func exportCache() {
 	client := createClient(host, port)
 
 	client.Set("username", "john doe", 60)
@@ -81,4 +81,26 @@ func main() {
 	cachedJson, _ := json.Marshal(cachedData)
 	ioutil.WriteFile(*path, cachedJson, 0644)
 	Logger.Infof("Output file successfully generated at: %s", *path)
+}
+
+func restoreCache() {
+	Logger.Info("Restore")
+}
+
+// main ... main function start the server
+func main() {
+	Logger.Infof("host %s", *host)
+	Logger.Infof("port %s", *port)
+
+	// If both the options are given or none of the options are given
+	if (*export && *restore) || (!*export && !*restore) {
+		Logger.Error("Exactly one option --export or --restore is required")
+		os.Exit(1)
+	}
+
+	if *export {
+		exportCache()
+	} else if *restore {
+		restoreCache()
+	}
 }
