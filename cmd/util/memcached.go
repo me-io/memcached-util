@@ -29,7 +29,7 @@ type KeyValue struct {
 type Key struct {
 	Original string `json:"original,omitempty"`
 	Name     string `json:"name,omitempty"`
-	Expiry   string `json:"expiry,omitempty"`
+	Expiry   int    `json:"expiry,omitempty"`
 }
 
 type MemcachedCommandExecutor struct {
@@ -112,11 +112,12 @@ func (client *memClient) ListKeys() []Key {
 		commandResult := client.executor.execute(command, []string{"END"})
 		for _, item := range commandResult {
 			matches := r.FindStringSubmatch(item)
+			expiry, _ := strconv.Atoi(matches[2])
 
 			keys = append(keys, Key{
 				matches[0],
 				matches[1],
-				matches[2],
+				expiry,
 			})
 		}
 	}

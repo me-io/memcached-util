@@ -3,16 +3,17 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
 	"github.com/op/go-logging"
 	"io/ioutil"
 	"os"
+	"strings"
 	"time"
 )
 
 var (
 	host *string
 	port *string
+	path *string
 
 	format = logging.MustStringFormatter(
 		`%{color}%{time:2006-01-02T15:04:05.999999} %{shortfunc} ▶ %{level:.8s} %{id:03x}%{color:reset} %{message}`,
@@ -33,8 +34,15 @@ func init() {
 	// Set the backend to be used.
 	logging.SetBackend(backendLevelFormatted)
 
-	host = flag.String("H", `0.0.0.0`, "Memcached hostname")
-	port = flag.String("P", "11211", "Memcached port")
+	host = flag.String("host", `0.0.0.0`, "Memcached hostname")
+	port = flag.String("port", "11211", "Memcached port")
+	path = flag.String("name", "output.json", "Path to store the output file at")
+
+	// If the given filename does not have the suffix, add to it
+	*path = strings.Trim(*path, "/")
+	if !strings.HasSuffix(*path, ".json") {
+		*path = *path + ".json"
+	}
 
 	flag.Parse()
 }
@@ -42,15 +50,15 @@ func init() {
 // main ... main function start the server
 func main() {
 	Logger.Infof("host %s", *host)
-	Logger.Infof("port %d", *port)
+	Logger.Infof("port %s", *port)
 
 	// connect to memcached server
 	client := createClient(host, port)
 
 	client.Set("username", "john doe", 60)
-	client.Set("age", "3438", 60)
-	client.Set("profession", "debugging", 60)
-	client.Set("location", "neverland", 60)
+	client.Set("age", "3438", 80)
+	client.Set("profession", "debugging", 90)
+	client.Set("location", "neverland", 602)
 
 	time.Sleep(1000 * time.Millisecond)
 
@@ -66,10 +74,11 @@ func main() {
 
 	for _, key := range keys {
 		keyValue, _ := client.Get(key.Name)
+		keyValue.Expiry = key.Expiry
 		cachedData = append(cachedData, *keyValue)
 	}
 
 	cachedJson, _ := json.Marshal(cachedData)
-	ioutil.WriteFile("output.json", cachedJson, 0644)
-	fmt.Printf("%+v", cachedData)
+	ioutil.WriteFile(*path, cachedJson, 0644)
+	Logger.Infof("Output file successfully generated at: %s", *path)
 }
