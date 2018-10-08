@@ -15,7 +15,7 @@ var (
 	host    *string
 	port    *string
 	path    *string
-	export  *bool
+	backup  *bool
 	restore *bool
 
 	format = logging.MustStringFormatter(
@@ -40,8 +40,7 @@ func init() {
 	host = flag.String("host", `0.0.0.0`, "Memcached hostname")
 	port = flag.String("port", "11211", "Memcached port")
 	path = flag.String("name", "output.json", "Path to store the output file at")
-	path = flag.String("action", "export", "Path to store the output file at")
-	export = flag.Bool("export", false, "Whether to export the cache")
+	backup = flag.Bool("backup", false, "Whether to backup the cache")
 	restore = flag.Bool("restore", false, "Whether to restore the cache")
 
 	// If the given filename does not have the suffix, add to it
@@ -55,8 +54,8 @@ func init() {
 	client = createClient(host, port)
 }
 
-// exportCache: Exports the cache into file at the given path
-func exportCache() {
+// backupCache: Exports the cache into file at the given path
+func backupCache() {
 	client.Set("username", "john doe", 60)
 	client.Set("age", "3438", 80)
 	client.Set("profession", "debugging", 90)
@@ -109,26 +108,26 @@ func restoreCache() {
 		if expirySeconds <= 0 {
 			Logger.Warningf("Key %s already expired, skipping ..", keyValue.Name)
 		} else {
-			Logger.Noticef("Restoring value for %s. Expires in %d seconds", keyValue.Name, expirySeconds)
+			Logger.Infof("Restoring value for %s. Expires in %d seconds", keyValue.Name, expirySeconds)
 		}
 
 		client.Set(keyValue.Name, keyValue.Value, int(expirySeconds))
 	}
 }
 
-// main: Validates the arguments and processes export or restore
+// main: Validates the arguments and processes backup or restore
 func main() {
 	Logger.Infof("host %s", *host)
 	Logger.Infof("port %s", *port)
 
 	// If both the options are given or none of the options are given
-	if (*export && *restore) || (!*export && !*restore) {
-		Logger.Error("Exactly one option --export or --restore is required")
+	if (*backup && *restore) || (!*backup && !*restore) {
+		Logger.Error("Exactly one option --backup or --restore is required")
 		os.Exit(1)
 	}
 
-	if *export {
-		exportCache()
+	if *backup {
+		backupCache()
 	} else if *restore {
 		restoreCache()
 	}
