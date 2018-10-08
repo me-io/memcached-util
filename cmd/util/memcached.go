@@ -116,7 +116,7 @@ func (client *memClient) ListKeys() []Key {
 
 			keys = append(keys, Key{
 				matches[0],
-				matches[1],
+				strings.TrimSpace(matches[1]),
 				expiry,
 			})
 		}
@@ -205,12 +205,4 @@ func createClient(host, port *string) (*memClient) {
 	}
 
 	return client
-}
-
-func writeKeysToFile() {
-
-}
-
-func writeKeysToMemcached() {
-
 }

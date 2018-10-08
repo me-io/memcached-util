@@ -101,8 +101,18 @@ func restoreCache() {
 	}
 
 	for _, keyValue := range keyValues {
-		Logger.Infof("Restoring value for%s", keyValue.Name)
-		client.Set(keyValue.Name, keyValue.Value, keyValue.Expiry)
+		expiryTime := time.Unix(int64(keyValue.Expiry), 0)
+		currentTime := time.Now()
+
+		duration := expiryTime.Sub(currentTime)
+		expirySeconds := int(duration.Seconds())
+		if expirySeconds <= 0 {
+			Logger.Warningf("Key %s already expired, skipping ..", keyValue.Name)
+		} else {
+			Logger.Noticef("Restoring value for %s. Expires in %d seconds", keyValue.Name, expirySeconds)
+		}
+
+		client.Set(keyValue.Name, keyValue.Value, int(expirySeconds))
 	}
 }
 
