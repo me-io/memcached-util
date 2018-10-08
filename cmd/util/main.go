@@ -11,6 +11,7 @@ import (
 )
 
 var (
+	client  *memClient
 	host    *string
 	port    *string
 	path    *string
@@ -50,11 +51,12 @@ func init() {
 	}
 
 	flag.Parse()
+
+	client = createClient(host, port)
 }
 
+// exportCache: Exports the cache into file at the given path
 func exportCache() {
-	client := createClient(host, port)
-
 	client.Set("username", "john doe", 60)
 	client.Set("age", "3438", 80)
 	client.Set("profession", "debugging", 90)
@@ -83,11 +85,28 @@ func exportCache() {
 	Logger.Infof("Output file successfully generated at: %s", *path)
 }
 
+// restoreCache: Checks for the existence of the given file and
+// restores the data back to memcached
 func restoreCache() {
-	Logger.Info("Restore")
+	if _, err := os.Stat(*path); os.IsNotExist(err) {
+		Logger.Errorf("File %s does not exist or is not readable", *path)
+		os.Exit(1)
+	}
+
+	cachedData, _ := ioutil.ReadFile(*path)
+	var keyValues []KeyValue
+	err := json.Unmarshal(cachedData, &keyValues)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, keyValue := range keyValues {
+		Logger.Infof("Restoring value for%s", keyValue.Name)
+		client.Set(keyValue.Name, keyValue.Value, keyValue.Expiry)
+	}
 }
 
-// main ... main function start the server
+// main: Validates the arguments and processes export or restore
 func main() {
 	Logger.Infof("host %s", *host)
 	Logger.Infof("port %s", *port)
