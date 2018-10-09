@@ -39,7 +39,7 @@ func init() {
 
 	host = flag.String("host", `0.0.0.0`, "Memcached hostname")
 	port = flag.String("port", "11211", "Memcached port")
-	path = flag.String("name", "output.json", "Path to store the output file at")
+	path = flag.String("name", "mem_backup.json", "Path to store the output file at")
 	backup = flag.Bool("backup", false, "Whether to backup the cache")
 	restore = flag.Bool("restore", false, "Whether to restore the cache")
 

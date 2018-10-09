@@ -28,4 +28,4 @@
 .docker_build/
 profile.cov
 dist
-output.json
+mem_backup.json
