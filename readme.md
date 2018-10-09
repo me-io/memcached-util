@@ -10,7 +10,12 @@ Useful for stopping/starting/restarting memcached server without sacrificing any
 
 ## Installation
 
-Download and install from the [releases page](https://github.com/me-io/memcached-util/releases)
+Download and install the relevant binary from the [releases page](https://github.com/me-io/memcached-util/releases)
+
+- [MacOS 32Bit](https://github.com/me-io/memcached-util/releases/download/0.0.1/memcached-util_macOS_32-bit.tar.gz)
+- [Linux 32Bit](https://github.com/me-io/memcached-util/releases/download/0.0.1/memcached-util_Linux_32-bit.tar.gz)
+- [Linux 64Bit](https://github.com/me-io/memcached-util/releases/download/0.0.1/memcached-util_Linux_64-bit.tar.gz)
+- [MacOS 64Bit](https://github.com/me-io/memcached-util/releases/download/0.0.1/memcached-util_macOS_64-bit.tar.gz)
 
 ## Usage
 
