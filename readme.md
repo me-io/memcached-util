@@ -17,7 +17,8 @@ Download and install from the [releases page](https://github.com/me-io/memcached
 Use the below signature to generate or restore the backup
 
 ```sh
-memcached-util [--backup|--restore]
+memcached-util [--backup]
+               [--restore]
                [--name <path-of-backup-file>]
                [--host <memcached-host>]
                [--port <memcached-port>]
@@ -27,11 +28,11 @@ Detail of options are listed below
 
 | **Option** | **Default** | **Description** |
 |--------|------|-------|
-| `--backup` |  | Generate the backup |
-| `--restore` | | Restore the backup |
-| `--name` | mem_backup.json | Path to the file to generate the backup in or to restore from |
 | `--host` | `0.0.0.0` | Memcached host to connect to |
 | `--port` | `11211` | Memcached port to connect to |
+| `--name` | mem_backup.json | Path to the file to generate the backup in or to restore from |
+| `--backup` |  | Generate the backup |
+| `--restore` | | Restore the backup |
 
 ### Examples
 
