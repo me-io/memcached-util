@@ -11,12 +11,10 @@ import (
 )
 
 var (
-	client  *memClient
-	host    *string
-	port    *string
-	path    *string
-	backup  *bool
-	restore *bool
+	client    *memClient
+	addr      *string
+	path      *string
+	operation *string
 
 	format = logging.MustStringFormatter(
 		`%{color}%{time:2006-01-02T15:04:05.999999} %{shortfunc} ▶ %{level:.8s} %{id:03x}%{color:reset} %{message}`,
@@ -37,11 +35,9 @@ func init() {
 	// Set the backend to be used.
 	logging.SetBackend(backendLevelFormatted)
 
-	host = flag.String("host", `0.0.0.0`, "Memcached hostname")
-	port = flag.String("port", "11211", "Memcached port")
-	path = flag.String("name", "mem_backup.json", "Path to store the output file at")
-	backup = flag.Bool("backup", false, "Whether to backup the cache")
-	restore = flag.Bool("restore", false, "Whether to restore the cache")
+	addr = flag.String("addr", `localhost:11211`, "Address to memcached server")
+	path = flag.String("filename", "mem_backup.json", "Path to store the output file at")
+	operation = flag.String("op", "", "Whether to backup the cache")
 
 	// If the given filename does not have the suffix, add to it
 	*path = strings.Trim(*path, "/")
@@ -51,7 +47,7 @@ func init() {
 
 	flag.Parse()
 
-	client = createClient(host, port)
+	client = createClient(addr)
 }
 
 // backupCache: Exports the cache into file at the given path
@@ -110,18 +106,14 @@ func restoreCache() {
 
 // main: Validates the arguments and processes backup or restore
 func main() {
-	Logger.Infof("host %s", *host)
-	Logger.Infof("port %s", *port)
+	Logger.Infof("address %s", *addr)
 
-	// If both the options are given or none of the options are given
-	if (*backup && *restore) || (!*backup && !*restore) {
-		Logger.Error("Exactly one option --backup or --restore is required")
-		os.Exit(1)
-	}
-
-	if *backup {
+	if *operation == "backup" {
 		backupCache()
-	} else if *restore {
+	} else if *operation == "restore" {
 		restoreCache()
+	} else {
+		Logger.Error("--op is required with either 'backup' or 'restore'")
+		os.Exit(1)
 	}
 }

@@ -196,8 +196,8 @@ func (client *memClient) Stat(statName string) (Stat, bool) {
 
 // Creates a memClient and deals with any errors
 // that might occur (e.g. unable to connect to server).
-func createClient(host, port *string) (*memClient) {
-	server := *host + ":" + *port
+func createClient(addr *string) (*memClient) {
+	server := *addr
 	client, err := MemClient(server)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Unable to connect to", server)
