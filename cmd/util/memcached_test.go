@@ -74,13 +74,13 @@ func TestVersion(t *testing.T) {
 	client, executor := createTestClient(t)
 	version := client.Version()
 	executor.assertCommands([]string{"version \r\n"})
-	if (version != "UNKNOWN") {
+	if version != "UNKNOWN" {
 		t.Errorf("Received version does not match expected version (%v!=%v)", version, "VERSION myversion.1234")
 	}
 
 	executor.addReturnValue("version \r\n", []string{"VERSION myversion.1234"})
 	version = client.Version()
-	if (version != "VERSION myversion.1234") {
+	if version != "VERSION myversion.1234" {
 		t.Errorf("Received version does not match expected version (%v!=%v)", version, "VERSION myversion.1234")
 	}
 }
@@ -95,13 +95,15 @@ func TestStats(t *testing.T) {
 
 	// validate that the result is correct and that the expected commands were executed
 	expectedStats := []Stat{
-		Stat{"time", "1446586044"},
-		Stat{"version", "1.4.14 (Ubuntu)"},
-		Stat{"libevent", "2.0.21-stable"},
+		{"time", "1446586044"},
+		{"version", "1.4.14 (Ubuntu)"},
+		{"libevent", "2.0.21-stable"},
 	}
-	if (!reflect.DeepEqual(stats, expectedStats)) {
+
+	if !reflect.DeepEqual(stats, expectedStats) {
 		t.Errorf("Returned cache stats incorrect (%v!=%v)", stats, expectedStats)
 	}
+
 	executor.assertCommands([]string{"stats\r\n"})
 }
 
@@ -114,7 +116,7 @@ func TestStat(t *testing.T) {
 	time, ok := client.Stat("time")
 
 	expectedTime := Stat{"time", "1446586044"}
-	if (!ok || !reflect.DeepEqual(time, expectedTime)) {
+	if !ok || !reflect.DeepEqual(time, expectedTime) {
 		t.Errorf("Returned cache stat incorrect (%v!=%v)", time, expectedTime)
 	}
 	executor.assertCommands([]string{"stats\r\n"})
