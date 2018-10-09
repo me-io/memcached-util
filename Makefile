@@ -164,7 +164,6 @@ test-docker: build-dirs
 	    --rm                                                                      \
 	    -u $$(id -u):$$(id -g)                                                    \
 	    -v "$$(pwd)/.go:/go"                                                      \
-	    -v "$$(pwd):/go/src/$(PKG)"                                               \
 	    -v "$$(pwd)/bin/$(OS)-$(ARCH):/go/bin"                                    \
 	    -v "$$(pwd)/.go/std/$(OS)-$(ARCH):/usr/local/go/pkg/$(OS)_$(ARCH)_static" \
 		-v "$$(pwd)/.go/cache:/.cache"                                      	  \
