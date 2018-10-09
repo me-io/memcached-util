@@ -56,13 +56,6 @@ func init() {
 
 // backupCache: Exports the cache into file at the given path
 func backupCache() {
-	client.Set("username", "john doe", 60)
-	client.Set("age", "3438", 80)
-	client.Set("profession", "debugging", 90)
-	client.Set("location", "neverland", 602)
-
-	time.Sleep(1000 * time.Millisecond)
-
 	var cachedData []KeyValue
 	keys := client.ListKeys()
 	foundCount := len(keys)

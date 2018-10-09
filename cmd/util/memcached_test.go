@@ -3,6 +3,7 @@
 package main
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -105,6 +106,36 @@ func TestStats(t *testing.T) {
 	}
 
 	executor.assertCommands([]string{"stats\r\n"})
+}
+
+func TestListKeys(t *testing.T) {
+	// setup testcase
+	client, executor := createTestClient(t)
+	executor.addReturnValue("stats items\r\n", []string{"STAT items:1:number 4"})
+
+	executor.addReturnValue("stats cachedump 1 4\n", []string{
+		"ITEM location [9 b; 1539093795 s]",
+		"ITEM profession [9 b; 1539088675 s]",
+		"ITEM age [4 b; 1539088575 s]",
+		"ITEM username [8 b; 1539088375 s]",
+	})
+
+	keys := client.ListKeys()
+
+	// validate that the result is correct and that the expected commands were executed
+	expectedKeys := []Key{
+		{Original: "ITEM location [9 b; 1539093795 s]", Name: "location", Expiry: 1539093795},
+		{Original: "ITEM profession [9 b; 1539088675 s]", Name: "profession", Expiry: 1539088675},
+		{Original: "ITEM age [4 b; 1539088575 s]", Name: "age", Expiry: 1539088575},
+		{Original: "ITEM username [8 b; 1539088375 s]", Name: "username", Expiry: 1539088375},
+	}
+
+	if (!reflect.DeepEqual(keys, expectedKeys)) {
+		fmt.Println(keys)
+		t.Errorf("Returned cache keys incorrect (%v!=%v)", keys, expectedKeys)
+	}
+
+	executor.assertCommands([]string{"stats items\r\n", "stats cachedump 1 4\n"})
 }
 
 func TestStat(t *testing.T) {
