@@ -1,7 +1,7 @@
 project_name: memcached-util
 before:
   hooks:
-#  - make clean
+  #  - make clean
   - go generate ./...
 builds:
 - main: ./cmd/util/.
