@@ -1,6 +1,9 @@
 ## Memcached Utility
 > Tiny memcached utility that allows you to backup and restore memcached cache
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/me-io/memcached-util)](https://goreportcard.com/report/github.com/me-io/memcached-util)
+[![GoDoc](https://godoc.org/github.com/me-io/memcached-util?status.svg)](https://godoc.org/github.com/me-io/memcached-util)
+
 Useful for stopping/starting/restarting memcache server without sacrificing any cached data.
 
 ## Installation
