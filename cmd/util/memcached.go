@@ -61,7 +61,7 @@ type Stat struct {
 }
 
 func (executor *MemcachedCommandExecutor) execute(command string, responseDelimiters []string) []string {
-	fmt.Fprintf(executor.connection, command)
+	fmt.Fprint(executor.connection, command)
 	scanner := bufio.NewScanner(executor.connection)
 	var result []string
 
@@ -77,6 +77,10 @@ OUTER:
 		// if there is no delimiter specified, then the response is just a single line and we should return after
 		// reading that first line (e.g. version command)
 		if len(responseDelimiters) == 0 {
+			break OUTER
+		}
+		// if there is an error storing the value, then we should break out of the loop
+		if line == "ERROR" {
 			break OUTER
 		}
 	}
